@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>E-BOOK | GMP & PPE Manual</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #003366;
+  --primary-light: #004d99;
+  --accent: #0099cc;
+  --accent2: #00cc88;
+  --danger: #e63946;
+  --warn: #f4a261;
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --text: #1a2744;
+  --text-muted: #6b7a99;
+  --border: #d0dce8;
+  --sidebar-w: 260px;
+  --header-h: 60px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); }
+
+/* ── LOGIN ── */
+#loginScreen {
+  position: fixed; inset: 0; z-index: 1000;
+  background: linear-gradient(135deg, #001a40 0%, #003366 45%, #004d80 100%);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+}
+.login-bg-pattern {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+}
+.login-bg-pattern span {
+  position: absolute; border-radius: 50%;
+  background: rgba(0,153,204,0.08);
+  animation: float 6s ease-in-out infinite;
+}
+.login-bg-pattern span:nth-child(1) { width:400px;height:400px;top:-100px;left:-100px;animation-delay:0s; }
+.login-bg-pattern span:nth-child(2) { width:300px;height:300px;bottom:-80px;right:-80px;animation-delay:2s; }
+.login-bg-pattern span:nth-child(3) { width:200px;height:200px;top:50%;right:10%;animation-delay:4s; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.login-box {
+  position: relative; z-index: 2;
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%; max-width: 400px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+  animation: slideUp 0.6s ease;
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+.login-logo {
+  text-align: center; margin-bottom: 32px;
+}
+.login-logo .shield {
+  font-size: 52px; display: block; margin-bottom: 10px;
+  filter: drop-shadow(0 0 20px rgba(0,204,136,0.6));
+}
+.login-logo h1 {
+  color: #fff; font-size: 22px; font-weight: 700; letter-spacing: 1px;
+}
+.login-logo p {
+  color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 4px;
+}
+
+.login-field { margin-bottom: 18px; }
+.login-field label {
+  display: block; color: rgba(255,255,255,0.75); font-size: 13px;
+  font-weight: 500; margin-bottom: 8px; letter-spacing: 0.5px;
+}
+.login-field input {
+  width: 100%; padding: 13px 16px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 10px; color: #fff;
+  font-size: 15px; font-family: 'Sarabun', sans-serif;
+  transition: all 0.2s;
+  outline: none;
+}
+.login-field input::placeholder { color: rgba(255,255,255,0.35); }
+.login-field input:focus {
+  border-color: rgba(0,204,136,0.7);
+  background: rgba(255,255,255,0.15);
+  box-shadow: 0 0 0 3px rgba(0,204,136,0.15);
+}
+
+.login-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #00cc88, #0099cc);
+  border: none; border-radius: 10px;
+  color: #fff; font-size: 16px; font-weight: 600;
+  cursor: pointer; font-family: 'Sarabun', sans-serif;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  margin-top: 6px;
+}
+.login-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0,204,136,0.35); }
+.login-btn:active { transform: translateY(0); }
+
+.login-error {
+  display: none; background: rgba(230,57,70,0.2);
+  border: 1px solid rgba(230,57,70,0.4);
+  border-radius: 8px; padding: 10px 14px;
+  color: #ff8a93; font-size: 13px; margin-bottom: 16px;
+  text-align: center;
+}
+.login-hint {
+  text-align: center; color: rgba(255,255,255,0.35);
+  font-size: 12px; margin-top: 20px;
+}
+.login-hint strong { color: rgba(255,255,255,0.55); }
+
+/* ── APP SHELL ── */
+#appShell { display: none; height: 100vh; flex-direction: column; }
+#appShell.visible { display: flex; }
+
+/* HEADER */
+.app-header {
+  height: var(--header-h); min-height: var(--header-h);
+  background: var(--primary);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px 0 20px; gap: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2); z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.menu-toggle {
+  background: none; border: none; color: rgba(255,255,255,0.8);
+  font-size: 20px; cursor: pointer; padding: 4px; display: none;
+}
+.app-logo { color: #fff; font-size: 16px; font-weight: 700; white-space: nowrap; }
+.app-logo span { color: var(--accent2); }
+.header-user {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.1); border-radius: 8px;
+  padding: 5px 12px;
+}
+.header-user span { color: rgba(255,255,255,0.9); font-size: 13px; }
+.logout-btn {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8); border-radius: 6px;
+  padding: 4px 10px; font-size: 12px; cursor: pointer;
+  font-family: 'Sarabun', sans-serif; transition: all 0.2s;
+}
+.logout-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+/* BODY */
+.app-body { display: flex; flex: 1; overflow: hidden; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w); min-width: var(--sidebar-w);
+  background: var(--primary);
+  overflow-y: auto; padding: 12px 0;
+  transition: transform 0.3s ease;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+.sidebar-section { padding: 6px 16px 2px; }
+.sidebar-section-label {
+  color: rgba(255,255,255,0.35); font-size: 10px;
+  font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; margin: 1px 8px;
+  border-radius: 8px; cursor: pointer;
+  color: rgba(255,255,255,0.65); font-size: 14px;
+  transition: all 0.15s; user-select: none;
+}
+.sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.sidebar-item.active {
+  background: linear-gradient(135deg, rgba(0,204,136,0.25), rgba(0,153,204,0.15));
+  color: #fff; font-weight: 600;
+  border-left: 3px solid var(--accent2);
+  margin-left: 5px; padding-left: 13px;
+}
+.sidebar-item .icon { font-size: 16px; min-width: 20px; text-align: center; }
+.sidebar-item .badge {
+  margin-left: auto; background: var(--accent2);
+  color: #fff; border-radius: 10px; font-size: 10px;
+  padding: 1px 7px; font-weight: 700;
+}
+
+/* CONTENT */
+.content { flex: 1; overflow-y: auto; }
+.content::-webkit-scrollbar { width: 6px; }
+.content::-webkit-scrollbar-track { background: #e8ecf0; }
+.content::-webkit-scrollbar-thumb { background: #b0bdd0; border-radius: 4px; }
+
+.page { display: none; padding: 20px 24px; animation: fadeIn 0.3s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* PAGE HEADER */
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+}
+.page-title h2 {
+  font-size: 20px; font-weight: 700; color: var(--primary);
+}
+.page-title p { color: var(--text-muted); font-size: 13px; margin-top: 3px; }
+.page-badge {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff; border-radius: 20px; padding: 4px 14px;
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+
+/* SEARCH BAR */
+.search-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 8px 14px; margin-bottom: 16px;
+}
+.search-bar input {
+  border: none; outline: none; flex: 1;
+  font-size: 14px; font-family: 'Sarabun', sans-serif;
+  color: var(--text); background: transparent;
+}
+.search-bar .s-icon { color: var(--text-muted); font-size: 16px; }
+
+/* STATS ROW */
+.stats-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--card); border-radius: 12px;
+  padding: 16px; border: 1px solid var(--border);
+  text-align: center; transition: transform 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.07); }
+.stat-num {
+  font-size: 28px; font-weight: 700; color: var(--primary);
+  line-height: 1;
+}
+.stat-label { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+/* TABLE */
+.table-wrap { background: var(--card); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+.table-wrap table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table-wrap th {
+  background: var(--primary); color: #fff;
+  padding: 11px 13px; text-align: left; font-weight: 600;
+  white-space: nowrap; font-size: 12px; letter-spacing: 0.3px;
+}
+.table-wrap th:first-child { width: 48px; text-align: center; }
+.table-wrap td {
+  padding: 10px 13px; border-bottom: 1px solid var(--border);
+  vertical-align: top; line-height: 1.5;
+}
+.table-wrap tr:last-child td { border-bottom: none; }
+.table-wrap tr:hover td { background: #f5f9ff; }
+
+/* CATEGORY ROW */
+.cat-row td {
+  background: linear-gradient(90deg, #e8f0fa, #f5f9ff);
+  font-weight: 700; color: var(--primary); font-size: 13px;
+  padding: 9px 13px;
+}
+
+/* TAGS */
+.tag {
+  display: inline-block; padding: 2px 8px; border-radius: 12px;
+  font-size: 11px; font-weight: 600; margin: 1px;
+}
+.tag-personal { background: #dbeafe; color: #1e40af; }
+.tag-shared { background: #d1fae5; color: #065f46; }
+.tag-dept { background: #fef3c7; color: #92400e; }
+.tag-freq { background: #ede9fe; color: #5b21b6; }
+.tag-size { background: #fce7f3; color: #9d174d; }
+
+/* CHECK ICON */
+.chk { color: var(--accent2); font-weight: 700; font-size: 14px; }
+.dot { color: var(--text-muted); }
+
+/* DEPT CHIPS */
+.dept-list { display: flex; flex-wrap: wrap; gap: 3px; }
+.dept-chip {
+  background: #e0f2fe; color: #0369a1;
+  font-size: 10px; padding: 2px 7px; border-radius: 8px;
+  font-weight: 600;
+}
+
+/* HOME PAGE */
+.home-hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  border-radius: 16px; padding: 32px 28px; margin-bottom: 20px;
+  color: #fff; position: relative; overflow: hidden;
+}
+.home-hero::after {
+  content: '🛡️';
+  position: absolute; right: 24px; top: 50%; transform: translateY(-50%);
+  font-size: 80px; opacity: 0.15;
+}
+.home-hero h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.home-hero p { color: rgba(255,255,255,0.8); font-size: 14px; line-height: 1.6; }
+
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px; margin-top: 8px;
+}
+.chapter-card {
+  background: var(--card); border-radius: 14px;
+  border: 1px solid var(--border); padding: 20px;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.chapter-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0,51,102,0.1);
+  border-color: var(--accent);
+}
+.ch-icon {
+  width: 46px; height: 46px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.ch-info h3 { font-size: 14px; font-weight: 700; color: var(--primary); }
+.ch-info p { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.ch-count {
+  margin-top: 8px; font-size: 11px; font-weight: 600;
+  color: var(--accent); background: #e0f4ff; padding: 2px 8px;
+  border-radius: 8px; display: inline-block;
+}
+
+/* MOBILE OVERLAY */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 50;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed; top: var(--header-h); left: 0;
+    height: calc(100vh - var(--header-h)); z-index: 60;
+    transform: translateX(-100%);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .menu-toggle { display: block; }
+  .page { padding: 14px 14px; }
+  .table-wrap { overflow-x: auto; }
+  table { min-width: 700px; }
+  .home-hero { padding: 22px 18px; }
+  .home-hero::after { display: none; }
+}
+
+/* PRINT */
+@media print { #loginScreen, .app-header, .sidebar { display: none !important; } }
+
+/* ── ITEM PHOTO CELL ── */
+.item-no-cell { text-align: center; min-width: 68px; }
+.item-no-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.item-num { font-weight: 700; color: var(--primary); font-size: 13px; line-height: 1; }
+.item-thumb-box {
+  width: 54px; height: 54px;
+  border: 2px solid var(--border); border-radius: 9px;
+  overflow: hidden; background: #f0f4f8;
+  cursor: pointer; transition: all 0.2s; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.item-thumb-box:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,153,204,0.18);
+  transform: scale(1.07);
+}
+.item-thumb-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.item-thumb-empty {
+  width: 54px; height: 54px;
+  border: 2px dashed #c8d8e8; border-radius: 9px;
+  background: #f8fafc;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; opacity: 0.45; cursor: default; transition: all 0.2s;
+}
+.item-thumb-empty:hover { border-color: var(--accent2); opacity: 0.75; background: #e8faf4; }
+.img-edit-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,51,102,0.55);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; opacity: 0; transition: opacity 0.2s;
+  border-radius: 7px; color: #fff;
+}
+.item-thumb-box:hover .img-edit-overlay { opacity: 1; }
+
+/* ── GALLERY PAGE ── */
+.gallery-toolbar {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; margin-bottom: 18px;
+}
+.gallery-toolbar .gal-title {
+  font-size: 15px; font-weight: 700; color: var(--primary); flex: 1;
+}
+.btn-upload {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: #fff; border: none; border-radius: 10px;
+  padding: 9px 16px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: 'Sarabun', sans-serif;
+  transition: all 0.2s; white-space: nowrap;
+}
+.btn-upload:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,153,204,0.3); }
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+@media (max-width: 480px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+@media (min-width: 1200px) {
+  .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+}
+
+.gal-card {
+  background: var(--card); border-radius: 14px;
+  border: 1px solid var(--border); overflow: hidden;
+  transition: all 0.2s; position: relative;
+}
+.gal-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,51,102,0.12); border-color: var(--accent); }
+.gal-card:hover .gal-actions { opacity: 1; }
+
+.gal-img-wrap {
+  position: relative; width: 100%; padding-top: 70%;
+  background: #f0f4f8; overflow: hidden;
+}
+.gal-img-wrap img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; transition: transform 0.3s;
+}
+.gal-card:hover .gal-img-wrap img { transform: scale(1.04); }
+
+.gal-actions {
+  position: absolute; inset: 0;
+  background: rgba(0,20,50,0.55);
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; opacity: 0; transition: opacity 0.2s;
+}
+.gal-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.15);
+  color: #fff; font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px); transition: all 0.15s;
+}
+.gal-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.1); }
+.gal-btn.del:hover { background: rgba(230,57,70,0.7); border-color: #ff8a93; }
+
+.gal-info { padding: 10px 12px; }
+.gal-info .gal-name {
+  font-size: 13px; font-weight: 600; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.gal-info .gal-date { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+.gal-empty {
+  grid-column: 1/-1; text-align: center;
+  padding: 60px 20px; color: var(--text-muted);
+}
+.gal-empty .gal-empty-icon { font-size: 52px; display: block; margin-bottom: 12px; opacity: 0.4; }
+.gal-empty p { font-size: 14px; }
+
+/* LIGHTBOX */
+.lightbox {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.88); align-items: center; justify-content: center;
+  padding: 16px;
+}
+.lightbox.open { display: flex; }
+.lightbox-inner {
+  position: relative; max-width: min(90vw, 900px); max-height: 90vh;
+  display: flex; flex-direction: column; align-items: center;
+}
+.lightbox-inner img {
+  max-width: 100%; max-height: calc(90vh - 80px);
+  border-radius: 12px; object-fit: contain;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.lightbox-caption {
+  color: rgba(255,255,255,0.85); font-size: 14px; margin-top: 12px;
+  text-align: center; font-weight: 500;
+}
+.lightbox-close {
+  position: absolute; top: -14px; right: -14px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.4);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.lightbox-close:hover { background: rgba(230,57,70,0.7); }
+
+/* EDIT MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 600;
+  background: rgba(0,0,0,0.6); align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--card); border-radius: 16px;
+  padding: 28px 24px; width: 100%; max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: slideUp 0.25s ease;
+}
+.modal-box h3 { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 18px; }
+.modal-box label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+.modal-box input[type=text] {
+  width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: 14px; font-family: 'Sarabun', sans-serif;
+  color: var(--text); outline: none; transition: border-color 0.2s;
+}
+.modal-box input[type=text]:focus { border-color: var(--accent); }
+.modal-preview {
+  width: 100%; border-radius: 10px; margin-bottom: 14px;
+  max-height: 200px; object-fit: contain; background: #f0f4f8;
+}
+.modal-btn-row { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
+.btn-save {
+  padding: 9px 20px; background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: #fff; border: none; border-radius: 10px; font-size: 14px;
+  font-weight: 600; cursor: pointer; font-family: 'Sarabun', sans-serif;
+}
+.btn-cancel {
+  padding: 9px 16px; background: var(--bg); border: 1.5px solid var(--border);
+  color: var(--text-muted); border-radius: 10px; font-size: 14px;
+  cursor: pointer; font-family: 'Sarabun', sans-serif;
+}
+.btn-cancel:hover { background: #e8ecf0; }
+
+/* UPLOAD DROPZONE */
+.upload-dropzone {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 24px; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: #f8fafc; margin-bottom: 14px;
+}
+.upload-dropzone:hover, .upload-dropzone.drag-over {
+  border-color: var(--accent); background: #e0f4ff;
+}
+.upload-dropzone .dz-icon { font-size: 32px; display: block; margin-bottom: 8px; }
+.upload-dropzone p { font-size: 13px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-bg-pattern">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="shield">🛡️</span>
+      <h1>GMP & PPE E-BOOK</h1>
+      <p>ระบบคู่มืออุปกรณ์ป้องกันอันตรายส่วนบุคคล</p>
+    </div>
+    <div class="login-error" id="loginError">❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+    <div class="login-field">
+      <label>ชื่อผู้ใช้ (Username)</label>
+      <input type="text" id="loginUser" placeholder="กรอกชื่อผู้ใช้" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>รหัสผ่าน (Password)</label>
+      <input type="password" id="loginPass" placeholder="กรอกรหัสผ่าน" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">🔓 เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appShell">
+  <header class="app-header">
+    <div class="header-left">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="app-logo">🛡️ GMP & PPE <span>E-BOOK</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div id="savingIndicator" style="display:none;align-items:center;gap:6px;background:rgba(0,204,136,0.15);border:1px solid rgba(0,204,136,0.4);border-radius:6px;padding:4px 10px;font-size:11px;color:#00cc88;white-space:nowrap;">
+        <span style="display:inline-block;width:10px;height:10px;border:2px solid #00cc88;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;"></span>
+        กำลังบันทึก...
+      </div>
+      <span id="roleBadge" style="display:none;background:rgba(244,162,97,0.25);border:1px solid rgba(244,162,97,0.5);color:#f4a261;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;white-space:nowrap;"></span>
+      <div class="header-user">
+        <span>👤 <span id="headerUser">admin</span></span>
+      </div>
+      <button class="logout-btn admin-only" id="syncSetupBtn" onclick="openSyncSetup()" style="background:rgba(0,204,136,0.15);border-color:rgba(0,204,136,0.4);color:#00cc88;" title="ตั้งค่า Cloud Sync">⚙️ Sync</button>
+      <button class="logout-btn" onclick="doLogout()">ออกจากระบบ</button>
+    </div>
+  </header>
+  <div class="app-body">
+    <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section"><div class="sidebar-section-label">เมนูหลัก</div></div>
+      <div class="sidebar-item active" onclick="showPage('home')"   data-page="home">
+        <span class="icon">🏠</span> หน้าหลัก
+      </div>
+      <div class="sidebar-section" style="margin-top:8px"><div class="sidebar-section-label">บท / บทที่</div></div>
+      <div class="sidebar-item" onclick="showPage('gallery')" data-page="gallery" style="display:none">
+        <span class="icon">🖼️</span> แกลเลอรีรูปภาพ
+        <span class="badge" id="galleryBadge">0</span>
+      </div>
+      <div class="sidebar-item" onclick="showPage('p1')"     data-page="p1">
+        <span class="icon">📋</span> GMP & PPE ทั้งหมด
+        <span class="badge">32</span>
+      </div>
+      <div class="sidebar-item" onclick="showPage('p2')"     data-page="p2">
+        <span class="icon">🚚</span> PPE สำหรับ O2O
+        <span class="badge">5</span>
+      </div>
+      <div class="sidebar-item" onclick="showPage('p3')"     data-page="p3">
+        <span class="icon">🛒</span> PPE (iProcurement)
+        <span class="badge">6</span>
+      </div>
+      <div class="sidebar-section" style="margin-top:8px"><div class="sidebar-section-label">ข้อมูลอ้างอิง</div></div>
+      <div class="sidebar-item" onclick="showPage('guide')"  data-page="guide">
+        <span class="icon">📖</span> แนวทางการใช้งาน
+      </div>
+    </nav>
+
+    <main class="content">
+      <!-- HOME -->
+      <div class="page active" id="home">
+        <div class="home-hero">
+          <h2>เครื่องแบบตามมาตรฐาน GMP และ PPE</h2>
+          <p>คู่มืออุปกรณ์ป้องกันอันตรายส่วนบุคคล สำหรับพนักงานและผู้เกี่ยวข้อง<br>เพื่อความปลอดภัยในการปฏิบัติงาน</p>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-num">32</div><div class="stat-label">รายการ PPE ทั้งหมด</div></div>
+          <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">หมวดหมู่ข้อมูล</div></div>
+          <div class="stat-card"><div class="stat-num">16</div><div class="stat-label">แผนก/ส่วนงาน</div></div>
+          <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">PPE สำหรับ O2O</div></div>
+        </div>
+        <h3 style="font-size:15px;color:var(--primary);margin-bottom:12px;font-weight:700;">📚 บทในคู่มือ</h3>
+        <div class="chapter-grid">
+          <div class="chapter-card" onclick="showPage('p1')"     data-page="p1">
+            <div class="ch-icon" style="background:#dbeafe;">📋</div>
+            <div class="ch-info">
+              <h3>GMP & PPE ทั้งหมด</h3>
+              <p>อุปกรณ์ป้องกันส่วนบุคคลตามมาตรฐาน GMP สำหรับทุกแผนก</p>
+              <span class="ch-count">32 รายการ</span>
+            </div>
+          </div>
+          <div class="chapter-card" onclick="showPage('p2')"     data-page="p2">
+            <div class="ch-icon" style="background:#d1fae5;">🚚</div>
+            <div class="ch-info">
+              <h3>PPE สำหรับ O2O</h3>
+              <p>อุปกรณ์ป้องกันสำหรับแผนก O2O โดยเฉพาะ</p>
+              <span class="ch-count">5 รายการ</span>
+            </div>
+          </div>
+          <div class="chapter-card" onclick="showPage('p3')"     data-page="p3">
+            <div class="ch-icon" style="background:#fef3c7;">🛒</div>
+            <div class="ch-info">
+              <h3>PPE ผ่าน iProcurement</h3>
+              <p>รายการที่สาขาสามารถสั่งซื้อผ่านระบบ iProcurement</p>
+              <span class="ch-count">6 รายการ</span>
+            </div>
+          </div>
+          <div class="chapter-card" onclick="showPage('guide')"  data-page="guide">
+            <div class="ch-icon" style="background:#ede9fe;">📖</div>
+            <div class="ch-info">
+              <h3>แนวทางการใช้งาน</h3>
+              <p>ข้อกำหนดและแนวทางการเบิกจ่าย เปลี่ยนแปลง และเก็บคืนอุปกรณ์</p>
+              <span class="ch-count">ข้อมูลสรุป</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GALLERY PAGE -->
+      <div class="page" id="gallery">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>🖼️ แกลเลอรีรูปภาพ</h2>
+            <p>รูปภาพอุปกรณ์ PPE และ GMP สำหรับอ้างอิง</p>
+          </div>
+          <button class="btn-upload admin-only" onclick="openUploadModal()">
+            ➕ เพิ่มรูปภาพ
+          </button>
+        </div>
+        <div style="background:#e0f4ff;border:1px solid #b0dcf0;border-radius:10px;padding:11px 16px;margin-bottom:16px;font-size:13px;color:#0369a1;line-height:1.7;">
+          💡 <strong>วิธีเชื่อมรูปกับตาราง:</strong> ตั้งชื่อรูปให้มีเลข No. ของอุปกรณ์ เช่น <strong>"1"</strong>, <strong>"no.5"</strong>, <strong>"item_12"</strong> — หรือลำดับรูปใน Gallery จะถูกจับคู่อัตโนมัติกับ No. ในตาราง
+        </div>
+        <div class="gallery-grid" id="galleryGrid">
+          <div class="gal-empty">
+            <span class="gal-empty-icon">🖼️</span>
+            <p>ยังไม่มีรูปภาพ กดปุ่ม "เพิ่มรูปภาพ" เพื่อเริ่มต้น</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIGHTBOX -->
+      <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+        <div class="lightbox-inner">
+          <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+          <img id="lightboxImg" src="" alt="">
+          <div class="lightbox-caption" id="lightboxCaption"></div>
+        </div>
+      </div>
+
+      <!-- EDIT MODAL -->
+      <div class="modal-overlay" id="editModal">
+        <div class="modal-box">
+          <h3>✏️ แก้ไขรูปภาพ</h3>
+          <img id="editPreview" class="modal-preview" src="" alt="">
+          <label>ชื่อรูปภาพ</label>
+          <input type="text" id="editName" placeholder="ระบุชื่อรูปภาพ...">
+          <div class="modal-btn-row">
+            <button class="btn-cancel" onclick="closeEditModal()">ยกเลิก</button>
+            <button class="btn-save" onclick="saveEdit()">💾 บันทึก</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPLOAD MODAL -->
+      <div class="modal-overlay" id="uploadModal">
+        <div class="modal-box">
+          <h3>➕ เพิ่มรูปภาพ</h3>
+          <div class="upload-dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()"
+               ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <span class="dz-icon">📷</span>
+            <p>คลิกเพื่อเลือกรูป หรือลากวางไฟล์ที่นี่<br><small>รองรับ JPG, PNG, GIF, WebP</small></p>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleFileSelect(event)">
+          <div id="uploadPreviewList" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;"></div>
+          <label>ชื่อรูปภาพ (สำหรับรูปแรก หรือใช้ชื่อไฟล์)</label>
+          <input type="text" id="uploadName" placeholder="ระบุชื่อ หรือเว้นว่างเพื่อใช้ชื่อไฟล์...">
+          <div class="modal-btn-row">
+            <button class="btn-cancel" onclick="closeUploadModal()">ยกเลิก</button>
+            <button class="btn-save" onclick="confirmUpload()">✅ บันทึก</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 1: All GMP & PPE -->
+      <div class="page" id="p1">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>📋 เครื่องแบบตามมาตรฐาน GMP และ PPE</h2>
+            <p>อุปกรณ์ป้องกันอันตรายส่วนบุคคลสำหรับทุกแผนก / ส่วนงาน</p>
+          </div>
+          <div class="page-badge">32 รายการ</div>
+        </div>
+        <div class="search-bar">
+          <span class="s-icon">🔍</span>
+          <input type="text" id="s1" placeholder="ค้นหาอุปกรณ์..." oninput="filterTable('t1','s1')">
+        </div>
+        <div class="table-wrap">
+          <table id="t1">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>อุปกรณ์</th>
+                <th>ประเภท</th>
+                <th>แผนก/ส่วนงานที่ใช้</th>
+                <th>ความถี่การเบิกจ่าย</th>
+                <th>ขนาด</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody id="t1body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAGE 2: O2O -->
+      <div class="page" id="p2">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>🚚 PPE สำหรับแผนก O2O</h2>
+            <p>เครื่องแบบตามมาตรฐาน GMP และ PPE สำหรับแผนก O2O โดยเฉพาะ</p>
+          </div>
+          <div class="page-badge">5 รายการ</div>
+        </div>
+        <div class="search-bar">
+          <span class="s-icon">🔍</span>
+          <input type="text" id="s2" placeholder="ค้นหาอุปกรณ์..." oninput="filterTable('t2','s2')">
+        </div>
+        <div class="table-wrap">
+          <table id="t2">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>อุปกรณ์</th>
+                <th>ประเภท</th>
+                <th>ตำแหน่งงานที่ใช้</th>
+                <th>ความถี่การเบิกจ่าย</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody id="t2body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAGE 3: iProcurement -->
+      <div class="page" id="p3">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>🛒 PPE ผ่านระบบ iProcurement</h2>
+            <p>รายการที่สาขาสามารถสั่งซื้อผ่านระบบ iProcurement ได้โดยตรง</p>
+          </div>
+          <div class="page-badge">6 รายการ</div>
+        </div>
+        <div class="search-bar">
+          <span class="s-icon">🔍</span>
+          <input type="text" id="s3" placeholder="ค้นหาอุปกรณ์..." oninput="filterTable('t3','s3')">
+        </div>
+        <div class="table-wrap">
+          <table id="t3">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>อุปกรณ์</th>
+                <th>ประเภท</th>
+                <th>แผนก/ส่วนงาน</th>
+                <th>ความถี่การเบิกจ่าย</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody id="t3body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAGE 4: Guide -->
+      <div class="page" id="guide">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>📖 แนวทางการใช้งานและข้อกำหนด</h2>
+            <p>สรุปข้อกำหนดการเบิกจ่าย เปลี่ยนแปลง และส่งคืนอุปกรณ์</p>
+          </div>
+        </div>
+        <div id="guideContent"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+// 1. CLOUD CONFIG  (hardcoded → same on every device)
+// ════════════════════════════════════════════════════
+const JBIN_MASTER_KEY = '$2a$10$Qu/ciBpaYw7qG.mDPzxL/OBwoskMl9K50XM4WIsys83qM89FZtMdK';
+const JBIN_BIN_ID     = '69e3367036566621a8c72cb8';
+const IMGBB_API_KEY   = 'd750625a8a856339b18ebd0e86d0a7e1';
+const LOCAL_IMG_KEY   = 'ppe_item_images_v3';
+
+function isJBinConfigured() {
+  return JBIN_MASTER_KEY.length > 10 && JBIN_BIN_ID.length > 10;
+}
+
+// ════════════════════════════════════════════════════
+// 2. AUTH
+// ════════════════════════════════════════════════════
+const USERS = {
+  admin:  { pass: '1234',        role: 'admin'    },
+  safety: { pass: 'safety2024',  role: 'admin'    },
+  hr:     { pass: 'hr1234',      role: 'admin'    },
+  soa:    { pass: 'makroho',     role: 'readonly' },
+};
+let currentUser = '';
+let currentRole = '';
+
+function isReadonly() { return currentRole === 'readonly'; }
+
+function applyRoleUI() {
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = isReadonly() ? 'none' : '';
+  });
+  const syncBtn = document.getElementById('syncSetupBtn');
+  if (syncBtn) {
+    if (isJBinConfigured()) {
+      syncBtn.textContent = '✅ Sync';
+      syncBtn.style.color = '#00cc88';
+    } else {
+      syncBtn.textContent = '⚙️ Sync';
+      syncBtn.style.color = '#f4a261';
+    }
+  }
+}
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const rec = USERS[u];
+  if (rec && rec.pass === p) {
+    currentUser = u;
+    currentRole = rec.role;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appShell').classList.add('visible');
+    document.getElementById('headerUser').textContent = u;
+    const badge = document.getElementById('roleBadge');
+    if (isReadonly()) { badge.textContent = '👁 ดูอย่างเดียว'; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+    buildAllTables();
+    applyRoleUI();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginPass').value = '';
+  }
+}
+function doLogout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appShell').classList.remove('visible');
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') doLogin();
+});
+
+// ════════════════════════════════════════════════════
+// 3. NAV & SEARCH
+// ════════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // highlight by data-page attribute — ไม่สนใจ index จึงไม่เพี้ยนแม้มี hidden items
+  const target = document.querySelector('.sidebar-item[data-page="' + id + '"]');
+  if (target) target.classList.add('active');
+  closeSidebar();
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+function filterTable(tableId, inputId) {
+  const q = document.getElementById(inputId).value.toLowerCase();
+  document.querySelectorAll('#' + tableId + ' tbody tr').forEach(row => {
+    if (row.classList.contains('cat-row')) { row.style.display = ''; return; }
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ════════════════════════════════════════════════════
+// 4. DATA
+// ════════════════════════════════════════════════════
+// ─── DATA ────────────────────────────────────────────
+const p1Data = {
+  categories: [
+    {
+      name: 'เครื่องป้องกันศีรษะ (Head Protection Devices)',
+      items: [
+        { no:1, name:'หมวกนิรภัย (Helmet) สำหรับพนักงานที่ผ่านการฝึกอบรมและมีประกาศแต่งตั้งให้ปฏิบัติงานกับรถยก ประกอบด้วยรองในหมวกและสายรัดคาง', type:'ส่วนบุคคล', depts:['Dry Food','Frozen','GA','Safety'], freq:'1 ใบ/คน/ปี', size:'No Size', note:'แจกพนักงานที่ได้รับใบอนุญาตขับรถฟอร์คลิฟท์เท่านั้น' },
+        { no:2, name:'หมวกคลุมผมสำหรับพนักงาน', type:'ส่วนบุคคล', depts:['F&V','Fish','Butchery','Frozen','Bakery','O2O Packer/Picker'], freq:'3 ใบ/คน/ปี', size:'No Size', note:'แจก 3 ใบต่อปี เพื่อรองรับการหมุนเวียนการซักล้าง' },
+        { no:3, name:'หมวกคลุมผมสำหรับ Visitor', type:'ส่วนบุคคล', depts:['F&V','Fish','Butchery','Frozen','Bakery','GR'], freq:'1 กล่อง/เดือน/สโตร์', size:'No Size', note:'จัดเก็บไว้ที่แผนก Bakery' },
+      ]
+    },
+    {
+      name: 'อุปกรณ์ป้องกันตาและใบหน้า (Eye and Face Protection Devices)',
+      items: [
+        { no:4, name:'แว่นตานิรภัย กันการกระเด็น กรอบน้ำเงิน (Safety glasses) มาตรฐาน GMP', type:'ส่วนบุคคล', depts:['Fish','Butchery'], freq:'1 ชิ้น/คน/ปี', size:'No Size', note:'เปลี่ยนเมื่อเลนส์มัว หรือเลนส์หลุดแยก' },
+        { no:5, name:'แว่นครอบตานิรภัย กันกระเด็น (แว่นก็อกเกิ้ล) สำหรับงาน GA', type:'ส่วนบุคคล', depts:['GA'], freq:'1 ชิ้น/คน/ปี', size:'No Size', note:'เปลี่ยนเมื่อเลนส์มัว หรือเลนส์หลุดแยก' },
+      ]
+    },
+    {
+      name: 'อุปกรณ์ป้องกันอันตรายของระบบหายใจ (Respiratory Protective Devices)',
+      items: [
+        { no:6, name:'หน้ากากป้องกันฝุ่นละอองและสารเคมี (สำหรับงานที่มีไอระเหย สารตัวทำละลาย งานทาสี งานฉีดยาฆ่าแมลง งานเคลือบเงา งานซ่อมบำรุง)', type:'ส่วนบุคคล', depts:['GA','Safety'], freq:'1 ชิ้น/เดือน/คน', size:'No Size', note:'กรณีไม่ได้ใช้งาน สามารถนำมาใช้เดือนถัดไป' },
+        { no:7, name:'หน้ากากงานเชื่อม (ไฟฟ้า)', type:'ส่วนรวม', depts:['GA'], freq:'1 ครั้ง (ส่วนกลาง)', size:'No Size', note:'จัดเก็บไว้บริเวณพื้นที่ปฏิบัติงานเชื่อม' },
+      ]
+    },
+    {
+      name: 'อุปกรณ์ป้องกันหู (Ear Protection)',
+      items: [
+        { no:8, name:'ที่อุดหู (Ear mug)', type:'ส่วนบุคคล', depts:['Fish','Butchery','Safety'], freq:'1 คู่/คน/เดือน', size:'No Size', note:'กรณีไม่ได้ใช้งาน สามารถนำมาใช้เดือนถัดไป' },
+      ]
+    },
+    {
+      name: 'อุปกรณ์ป้องกันลำตัว (Body Protection)',
+      items: [
+        { no:9, name:'เสื้อห้องเย็น (ตัวยาว) Cold Coat (long) สำหรับพนักงานที่ปฏิบัติงานในห้องที่มีอุณหภูมิ -18 องศา', type:'ส่วนรวม', depts:['Dry Food','F&V','Fish','Butchery','Frozen','Bakery'], freq:'30 ตัว/ปี/สาขา', size:'No Size', note:'ซักอย่างน้อย 1 ครั้ง/สัปดาห์ ห้ามนำออกนอกสาขา' },
+        { no:10, name:'เสื้อห้องเย็น (ตัวสั้น) Cooling Coat สำหรับพนักงานที่ทำงานในห้องเย็น 0-5 องศา', type:'ส่วนบุคคล', depts:['Dry Food','F&V','Fish','Butchery','Frozen','Bakery'], freq:'2 ตัว/คน/ปี', size:'No Size', note:'ซักอย่างน้อย 1 ครั้ง/สัปดาห์' },
+        { no:11, name:'ผ้ากันเปื้อนแบบยาง (Rubber apron)', type:'ส่วนบุคคล', depts:['Dry Food','F&V','Fish','Butchery','Frozen'], freq:'4 ชิ้น/คน/ปี', size:'No Size', note:'เปลี่ยนทุก 4 เดือน' },
+        { no:12, name:'ผ้ากันเปื้อนแบบผ้า (Apron)', type:'ส่วนบุคคล', depts:['Dry Food','Bakery'], freq:'4 ชิ้น/คน/ปี', size:'No Size', note:'ซักอย่างน้อย 1 ครั้ง/สัปดาห์' },
+        { no:13, name:'เข็มขัดพยุงหลัง', type:'ส่วนบุคคล', depts:['Staff Makro','Staff Outsource (Loader/Packer/Picker)'], freq:'40 ชิ้น/สาขา (O2O: 1 ชิ้น/คน)', size:'S-XL', note:'สำหรับพนักงานที่มีปัญหาปวดหลัง (ไม่ใช่ PPE)' },
+      ]
+    },
+    {
+      name: 'อุปกรณ์ป้องกันมือ นิ้วมือ และแขน (Hand & Arm Protection)',
+      items: [
+        { no:14, name:'ถุงมือกันบาด รุ่น Super HI-CUT (งานหั่นด้วยมีด งานเลื่อยไม้ ตัดแต่งผัก ผลไม้)', type:'ส่วนบุคคล', depts:['Dry Food','F&V','Fish','Butchery','Frozen','Bakery'], freq:'1 คู่/คน/เดือน', size:'S-XL', note:'ซักได้ 30 ครั้งต่อเดือน' },
+        { no:15, name:'ถุงมือกันบาด รุ่น Super HI-CUT PLUS III (งานหั่นด้วยเครื่องเลื่อย เครื่องสไลด์)', type:'ส่วนรวม', depts:['Fish','Butchery'], freq:'3 คู่/แผนก/เดือน', size:'No Size', note:'' },
+        { no:16, name:'ถุงมือยาง (Rubber gloves) สำหรับงานทำความสะอาด และทำความสะอาดกล่องโฟมดำ', type:'ส่วนบุคคล', depts:['Dry Food','F&V','Fish','Frozen','O2O Loader'], freq:'1 คู่/คน/เดือน', size:'S-L', note:'' },
+        { no:17, name:'ถุงมือยางธรรมชาติสีเนื้อ ขนาด 12" สำหรับสัมผัสอาหาร', type:'ส่วนบุคคล', depts:['Fish','Butchery'], freq:'3 คู่/คน/สัปดาห์', size:'S-L', note:'' },
+        { no:18, name:'ถุงมือกันบาดกันลื่น', type:'ส่วนบุคคล', depts:['Dry Food','Cashier','Safety'], freq:'4 คู่/คน/ปี', size:'S-XL', note:'' },
+        { no:19, name:'ถุงมือกันความร้อน', type:'ส่วนรวม', depts:['Bakery'], freq:'2 คู่/ปี/สาขา', size:'No Size', note:'ซักอย่างน้อย 1 ครั้ง/สัปดาห์ มีถุงมือสำรองระหว่างซัก' },
+        { no:20, name:'ปลอกแขนกันความร้อน ผ้ายีนส์/ผ้าโทเร', type:'ส่วนบุคคล', depts:['Dry Food','Bakery'], freq:'2 คู่/คน/ปี', size:'No Size', note:'ซักอย่างน้อย 1 ครั้ง/สัปดาห์' },
+        { no:21, name:'ถุงมือสำหรับห้องเย็น', type:'ส่วนรวม', depts:['Dry Food','F&V','Fish','Butchery','Frozen','Bakery'], freq:'60 คู่/สาขา/ปี (Food Shop: 12 คู่/สาขา/ปี)', size:'S-3XL', note:'' },
+        { no:22, name:'ถุงมือกันไฟฟ้า (สำหรับการทำงานซ่อมแซมอุปกรณ์ไฟฟ้า)', type:'ส่วนรวม', depts:['GA'], freq:'1 คู่/ปี/สาขา', size:'No Size', note:'' },
+        { no:23, name:'ถุงมือกันสารเคมี (สำหรับงาน GA)', type:'ส่วนบุคคล', depts:['GA'], freq:'1 คู่/คน/เดือน', size:'No Size', note:'' },
+      ]
+    },
+    {
+      name: 'อุปกรณ์ป้องกันเท้าและขา (Foot and Leg Protection)',
+      items: [
+        { no:24, name:'รองเท้านิรภัยหัวเหล็กสีขาว (Safety shoes) มาตรฐาน GMP', type:'ส่วนบุคคล', depts:['Dry Food','F&V','Butchery','Bakery'], freq:'1 คู่/ปี/คน', size:'35-46', note:'ไม่อนุญาตให้ใส่ออกนอกพื้นที่ปฏิบัติงาน' },
+        { no:25, name:'รองเท้าบูทนิรภัยหัวเหล็กสีขาว (Safety boots) มาตรฐาน GMP', type:'ส่วนบุคคล', depts:['Fish','Butchery'], freq:'1 คู่/ปี/คน', size:'37-46', note:'ไม่อนุญาตให้ใส่ออกนอกพื้นที่ฝ่าย Fresh Food' },
+        { no:26, name:'รองเท้านิรภัยหัวเหล็กสีดำ (Safety shoes)', type:'ส่วนบุคคล', depts:['Staff Makro','O2O','Cashier','GR','ALC/Admin','Safety','HR'], freq:'1 คู่/ปี/คน', size:'35-46', note:'Outsource คืนเมื่อพนักงานลาออก' },
+        { no:27, name:'ถุงคลุมเท้าพลาสติก (สำหรับ Visitor ที่จำเป็นเข้าในพื้นที่ผลิต)', type:'ส่วนบุคคล', depts:['Fish','Butchery','Frozen','Bakery'], freq:'1 กล่อง/เดือน/สโตร์', size:'-', note:'จัดเก็บไว้ที่แผนก Bakery' },
+      ]
+    },
+    {
+      name: 'อุปกรณ์พิเศษใช้เฉพาะงาน (Special Devices)',
+      items: [
+        { no:28, name:'เชือกนิรภัยสำหรับการทำงานในที่สูง (ประจำบันไดเติมสินค้า Forklift)', type:'ส่วนรวม', depts:['Dry Food','O2O','Cashier','GR','Safety'], freq:'1 เส้น/ปี', size:'No Size', note:'จัดเตรียมไว้กับบันไดเติมสินค้าทุกจุด' },
+        { no:29, name:'แผ่นยางลดความเมื่อยล้า (Rubber pads reduce fatigue)', type:'ส่วนรวม', depts:['Cashier (Premium)'], freq:'1 แผ่น/3 ปี', size:'No Size', note:'' },
+        { no:30, name:'เสื้อคลุมกันฝน (GA)', type:'ส่วนรวม', depts:['GA'], freq:'2 ตัว/ปี', size:'-', note:'จัดเก็บบริเวณจุด รปภ. 93 / ห้องทำงาน GA' },
+        { no:31, name:'รองเท้าบู๊ท สูง 14" / Rubber Boots 14" (GA)', type:'ส่วนรวม', depts:['GA'], freq:'2 คู่/ปี', size:'-', note:'จัดเก็บบริเวณจุด รปภ. 93 / ห้องทำงาน GA' },
+        { no:32, name:'เสื้อสะท้อนแสง Spotters (สำหรับพนักงานที่ทำหน้าที่เป็นสปอตเตอร์ปฏิบัติงานกับรถ Forklift)', type:'ส่วนรวม', depts:['Forklift Spotters'], freq:'3 ตัว/ปี', size:'-', note:'จัดเก็บไว้คู่กับรถ Forklift' },
+      ]
+    }
+  ]
+};
+
+const p2Data = [
+  { no:1, name:'หมวกคลุมผมสำหรับพนักงาน', type:'ส่วนรวม', depts:['Packer','Picker'], freq:'3 ใบ/ปี/คน', note:'แจก 3 ใบเพื่อรองรับการหมุนเวียนการซักล้าง', cat:'เครื่องป้องกันศีรษะ' },
+  { no:2, name:'รองเท้านิรภัย (Safety shoes) หัวเหล็กสีดำ', type:'ส่วนบุคคล', depts:['Loader','Packer','Picker','Admin','Admin-Delivery','Delivery Manager','Operation Manager','CSO','HUB Manager'], freq:'1 คู่/ปี/คน', note:'Outsource คืนเมื่อพนักงานลาออก', cat:'อุปกรณ์ป้องกันเท้า' },
+  { no:3, name:'ถุงมือยาง (Rubber gloves) สำหรับงานทำความสะอาด ทำความสะอาดกล่องโฟมสีดำ', type:'ส่วนบุคคล', depts:['Loader'], freq:'1 คู่/เดือน/คน', note:'', cat:'อุปกรณ์ป้องกันมือ' },
+  { no:4, name:'ถุงมือสำหรับห้องเย็น', type:'ส่วนรวม', depts:['(ส่วนกลาง)'], freq:'6 คู่/สาขา/3 เดือน', note:'', cat:'อุปกรณ์ป้องกันมือ' },
+  { no:5, name:'เข็มขัดพยุงหลัง', type:'ส่วนบุคคล', depts:['Loader','Packer','Picker'], freq:'1 ชิ้น/คน/ปี', note:'', cat:'อุปกรณ์พิเศษ' },
+];
+
+const p3Data = [
+  { no:1, name:'หมวกคลุมผมสำหรับ Visitor', type:'ส่วนบุคคล', depts:['F&V','Fish','Butchery','Frozen','Bakery','GR','HR'], freq:'1 กล่อง/เดือน/สโตร์', note:'จัดเก็บที่แผนก Bakery', cat:'เครื่องป้องกันศีรษะ' },
+  { no:2, name:'ถุงคลุมเท้าพลาสติก (สำหรับ Visitor ที่จำเป็นเข้าในพื้นที่ผลิต)', type:'ส่วนบุคคล', depts:['Fish','Butchery','Frozen','Bakery'], freq:'1 กล่อง/เดือน/สโตร์', note:'จัดเก็บที่แผนก Bakery', cat:'เครื่องป้องกันศีรษะ' },
+  { no:3, name:'หน้ากากงานเชื่อม (ไฟฟ้า)', type:'ส่วนรวม', depts:['GA'], freq:'1 ครั้ง (ส่วนกลาง)', note:'จัดเก็บบริเวณพื้นที่ปฏิบัติงานเชื่อม', cat:'อุปกรณ์ป้องกันตา' },
+  { no:4, name:'เสื้อคลุมกันฝน (GA)', type:'ส่วนรวม', depts:['GA'], freq:'2 ตัว/ปี', note:'จัดเก็บบริเวณจุด รปภ. 93 / ห้องทำงาน GA', cat:'อุปกรณ์ป้องกันลำตัว' },
+  { no:5, name:'รองเท้าบู๊ท สูง 14" / Rubber Boots 14" (GA)', type:'ส่วนรวม', depts:['GA'], freq:'2 คู่/ปี', note:'จัดเก็บบริเวณจุด รปภ. 93 / ห้องทำงาน GA', cat:'อุปกรณ์ป้องกันเท้า' },
+  { no:6, name:'เสื้อสะท้อนแสง Spotters', type:'ส่วนรวม', depts:['Forklift Spotters'], freq:'3 ตัว/ปี', note:'จัดเก็บไว้คู่กับรถ Forklift', cat:'อุปกรณ์พิเศษ' },
+];
+
+// ════════════════════════════════════════════════════
+// 5. IMAGE STORAGE (per-cell, ImgBB + JSONBin)
+// ════════════════════════════════════════════════════
+let itemImages = {};   // { slotKey: URL_or_base64 }
+let isSaving   = false;
+let _pendingSlotKey = '';
+let _lastSavedSlot  = '';
+let _catCounters    = {};
+
+function resetCatCounters() { _catCounters = {}; }
+
+// ── Compress image via Canvas ──
+function compressImage(dataUrl, maxPx, quality) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxPx || h > maxPx) {
+        if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+        else       { w = Math.round(w * maxPx / h); h = maxPx; }
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
+}
+
+// ── ImgBB upload ──
+async function imgbbUpload(base64Data) {
+  if (!IMGBB_API_KEY) return null;
+  try {
+    const base64 = base64Data.replace(/^data:image\/[a-z]+;base64,/, '');
+    const fd = new FormData();
+    fd.append('image', base64);
+    const r = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY, { method: 'POST', body: fd });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return j.data && j.data.url ? j.data.url : null;
+  } catch(e) { return null; }
+}
+
+// ── JSONBin helpers ──
+async function jbinLoad() {
+  try {
+    const r = await fetch('https://api.jsonbin.io/v3/b/' + JBIN_BIN_ID + '/latest', {
+      headers: { 'X-Master-Key': JBIN_MASTER_KEY }
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return j.record.itemImages || {};
+  } catch(e) { return null; }
+}
+
+async function jbinSave(data) {
+  try {
+    const body = JSON.stringify({ itemImages: data });
+    const kb = Math.round(body.length / 1024);
+    if (kb > 90) { console.warn('Payload too large:', kb, 'KB'); return false; }
+    const r = await fetch('https://api.jsonbin.io/v3/b/' + JBIN_BIN_ID, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': JBIN_MASTER_KEY },
+      body
+    });
+    return r.ok;
+  } catch(e) { return false; }
+}
+
+// ── LOAD from cloud → rebuild tables ──
+async function loadGallery() {
+  setSavingState(true, 'กำลังโหลดรูปภาพ...');
+  if (isJBinConfigured()) {
+    const data = await jbinLoad();
+    if (data !== null) {
+      itemImages = data;
+      try { localStorage.setItem(LOCAL_IMG_KEY, JSON.stringify(data)); } catch(e){}
+      setSavingState(false);
+      rebuildTablesIfReady();
+      return;
+    }
+  }
+  try {
+    const raw = localStorage.getItem(LOCAL_IMG_KEY);
+    itemImages = raw ? JSON.parse(raw) : {};
+  } catch(e) { itemImages = {}; }
+  setSavingState(false);
+  rebuildTablesIfReady();
+}
+
+// ── SAVE to cloud ──
+async function saveItemImages() {
+  setSavingState(true, 'กำลังบันทึก...');
+  try { localStorage.setItem(LOCAL_IMG_KEY, JSON.stringify(itemImages)); } catch(e){}
+  if (isJBinConfigured()) {
+    // ถ้า slot ใหม่ยังเป็น base64 และมี ImgBB key → upload ก่อน
+    if (_lastSavedSlot && itemImages[_lastSavedSlot] && itemImages[_lastSavedSlot].startsWith('data:')) {
+      if (IMGBB_API_KEY) {
+        setSavingState(true, 'กำลังอัปโหลดรูป...');
+        const url = await imgbbUpload(itemImages[_lastSavedSlot]);
+        if (url) {
+          itemImages[_lastSavedSlot] = url;
+          try { localStorage.setItem(LOCAL_IMG_KEY, JSON.stringify(itemImages)); } catch(e){}
+        }
+      }
+    }
+    const ok = await jbinSave(itemImages);
+    if (!ok) {
+      setSavingState(false);
+      rebuildTablesIfReady();
+      showSaveError();
+      return;
+    }
+  }
+  setSavingState(false);
+  rebuildTablesIfReady();
+}
+
+function showSaveError() {
+  const old = document.getElementById('saveErrBanner');
+  if (old) old.remove();
+  const b = document.createElement('div');
+  b.id = 'saveErrBanner';
+  b.style.cssText = 'position:fixed;bottom:16px;right:16px;z-index:9999;background:#fff;border:1.5px solid #f4a261;border-radius:12px;padding:16px 18px;max-width:320px;font-size:13px;color:#1a2744;box-shadow:0 6px 24px rgba(0,0,0,0.12);line-height:1.8;';
+  b.innerHTML = '<strong>⚠️ บันทึก Cloud ไม่สำเร็จ</strong><br>รูปถูกเก็บในเครื่องนี้แล้ว<br>กรุณาตรวจสอบ ImgBB API Key และ JSONBin Key<button onclick="this.parentNode.remove()" style="float:right;background:none;border:none;font-size:18px;cursor:pointer;">✕</button>';
+  document.body.appendChild(b);
+  setTimeout(() => { if (b.parentNode) b.remove(); }, 8000);
+}
+
+function setSavingState(on, msg) {
+  isSaving = on;
+  const ind = document.getElementById('savingIndicator');
+  if (!ind) return;
+  if (on) {
+    const span = ind.querySelector('span:last-child');
+    if (span) span.textContent = msg || 'กำลังบันทึก...';
+    ind.style.display = 'flex';
+  } else { ind.style.display = 'none'; }
+}
+
+function rebuildTablesIfReady() {
+  if (document.getElementById('t1body')) { buildTable1(); buildTable2(); buildTable3(); }
+}
+
+// ── Per-cell upload trigger ──
+function triggerItemUpload(slotKey) {
+  _pendingSlotKey = slotKey;
+  if (itemImages[slotKey]) { showCellMenu(slotKey); }
+  else { openCellFilePicker(); }
+}
+
+function openCellFilePicker() {
+  let inp = document.getElementById('cellFileInput');
+  if (!inp) {
+    inp = document.createElement('input');
+    inp.type = 'file'; inp.id = 'cellFileInput'; inp.accept = 'image/*'; inp.style.display = 'none';
+    document.body.appendChild(inp);
+    inp.addEventListener('change', onCellFileChosen);
+  }
+  inp.value = '';
+  inp.click();
+}
+
+function onCellFileChosen(e) {
+  const file = e.target.files[0];
+  if (!file || !_pendingSlotKey) return;
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    setSavingState(true, 'กำลังบีบอัดรูป...');
+    const compressed = await compressImage(ev.target.result, 900, 0.72);
+    _lastSavedSlot = _pendingSlotKey;
+    itemImages[_pendingSlotKey] = compressed;
+    await saveItemImages();
+    _pendingSlotKey = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function showCellMenu(slotKey) {
+  const old = document.getElementById('cellMenu');
+  if (old) old.remove();
+  const src = itemImages[slotKey] || '';
+  const m = document.createElement('div');
+  m.id = 'cellMenu'; m.className = 'modal-overlay open';
+  m.innerHTML = `
+    <div class="modal-box" style="max-width:300px;text-align:center;">
+      <h3 style="margin-bottom:14px;">🖼️ จัดการรูปภาพ</h3>
+      <img src="${src}" style="width:100%;border-radius:10px;max-height:200px;object-fit:contain;background:#f0f4f8;margin-bottom:16px;">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-save" onclick="document.getElementById(&quot;cellMenu&quot;).remove();openCellFilePicker();">✏️ เปลี่ยนรูป</button>
+        <button onclick="deleteCellImage('${slotKey}')" style="padding:9px;background:#fee2e2;border:none;border-radius:10px;color:#e63946;font-size:14px;font-weight:600;cursor:pointer;font-family:Sarabun,sans-serif;">🗑️ ลบรูป</button>
+        <button class="btn-cancel" onclick="document.getElementById(&quot;cellMenu&quot;).remove();_pendingSlotKey='';">ยกเลิก</button>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+}
+
+async function deleteCellImage(slotKey) {
+  if (!confirm('ลบรูปนี้ใช่หรือไม่?')) return;
+  delete itemImages[slotKey];
+  const cm = document.getElementById('cellMenu'); if (cm) cm.remove();
+  _pendingSlotKey = ''; _lastSavedSlot = slotKey;
+  await saveItemImages();
+}
+
+// ── Lightbox ──
+function openLightboxDirect(src, name) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightboxCaption').textContent = name || '';
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(e) {
+  if (!e || e.target === document.getElementById('lightbox'))
+    document.getElementById('lightbox').classList.remove('open');
+}
+
+// ── Keyboard ESC ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('lightbox').classList.remove('open');
+    const cm = document.getElementById('cellMenu'); if (cm) cm.remove();
+  }
+});
+
+// ════════════════════════════════════════════════════
+// 6. TABLE RENDERING
+// ════════════════════════════════════════════════════
+function typeTag(t) {
+  return t === 'ส่วนบุคคล'
+    ? '<span class="tag tag-personal">👤 ส่วนบุคคล</span>'
+    : '<span class="tag tag-shared">👥 ส่วนรวม</span>';
+}
+function deptChips(arr) {
+  return '<div class="dept-list">' + arr.map(d => '<span class="dept-chip">' + d + '</span>').join('') + '</div>';
+}
+
+function getItemThumbCell(tableKey, catIdx, no, name) {
+  const slotKey = tableKey + '__' + catIdx + '__' + no;
+  const src = itemImages[slotKey] || '';
+  const canEdit = !isReadonly();
+  let thumb;
+  if (src) {
+    thumb = canEdit
+      ? `<div class="item-thumb-box" onclick="triggerItemUpload('${slotKey}')" style="cursor:pointer" title="คลิกเปลี่ยนรูป"><div class="img-edit-overlay">✏️</div><img src="${src}" alt="${name}"></div>`
+      : `<div class="item-thumb-box" title="รูปภาพ"><img src="${src}" alt="${name}"></div>`;
+  } else {
+    thumb = canEdit
+      ? `<div class="item-thumb-empty" onclick="triggerItemUpload('${slotKey}')" style="cursor:pointer" title="คลิกเพื่ออัปโหลดรูป">➕</div>`
+      : `<div class="item-thumb-empty" style="cursor:default;opacity:0.25">🖼️</div>`;
+  }
+  return `<td class="item-no-cell"><div class="item-no-wrap"><span class="item-num">${no}</span>${thumb}</div></td>`;
+}
+
+function buildTable1() {
+  resetCatCounters();
+  const tb = document.getElementById('t1body');
+  let rows = '';
+  p1Data.categories.forEach((cat, ci) => {
+    rows += '<tr class="cat-row"><td colspan="7">🔹 ' + cat.name + '</td></tr>';
+    cat.items.forEach(item => {
+      rows += '<tr>' +
+        getItemThumbCell('t1', ci, item.no, item.name) +
+        '<td><strong>' + item.name + '</strong></td>' +
+        '<td>' + typeTag(item.type) + '</td>' +
+        '<td>' + deptChips(item.depts) + '</td>' +
+        '<td><span class="tag tag-freq">🔄 ' + item.freq + '</span></td>' +
+        '<td>' + (item.size !== 'No Size' ? '<span class="tag tag-size">📏 ' + item.size + '</span>' : '<span style="color:var(--text-muted);font-size:12px">-</span>') + '</td>' +
+        '<td style="font-size:12px;color:var(--text-muted)">' + item.note + '</td>' +
+        '</tr>';
+    });
+  });
+  tb.innerHTML = rows;
+}
+
+function buildTable2() {
+  resetCatCounters();
+  const tb = document.getElementById('t2body');
+  const grouped = {};
+  p2Data.forEach(item => { if (!grouped[item.cat]) grouped[item.cat] = []; grouped[item.cat].push(item); });
+  let rows = '';
+  Object.entries(grouped).forEach(([cat, items], ci) => {
+    rows += '<tr class="cat-row"><td colspan="6">🔹 ' + cat + '</td></tr>';
+    items.forEach(item => {
+      rows += '<tr>' +
+        getItemThumbCell('t2', ci, item.no, item.name) +
+        '<td><strong>' + item.name + '</strong></td>' +
+        '<td>' + typeTag(item.type) + '</td>' +
+        '<td>' + deptChips(item.depts) + '</td>' +
+        '<td><span class="tag tag-freq">🔄 ' + item.freq + '</span></td>' +
+        '<td style="font-size:12px;color:var(--text-muted)">' + item.note + '</td>' +
+        '</tr>';
+    });
+  });
+  tb.innerHTML = rows;
+}
+
+function buildTable3() {
+  resetCatCounters();
+  const tb = document.getElementById('t3body');
+  const grouped = {};
+  p3Data.forEach(item => { if (!grouped[item.cat]) grouped[item.cat] = []; grouped[item.cat].push(item); });
+  let rows = '';
+  Object.entries(grouped).forEach(([cat, items], ci) => {
+    rows += '<tr class="cat-row"><td colspan="6">🔹 ' + cat + '</td></tr>';
+    items.forEach(item => {
+      rows += '<tr>' +
+        getItemThumbCell('t3', ci, item.no, item.name) +
+        '<td><strong>' + item.name + '</strong></td>' +
+        '<td>' + typeTag(item.type) + '</td>' +
+        '<td>' + deptChips(item.depts) + '</td>' +
+        '<td><span class="tag tag-freq">🔄 ' + item.freq + '</span></td>' +
+        '<td style="font-size:12px;color:var(--text-muted)">' + item.note + '</td>' +
+        '</tr>';
+    });
+  });
+  tb.innerHTML = rows;
+}
+
+function buildGuide() {
+  const guidelines = [
+    { icon:'🔄', title:'การเบิกจ่ายตามรอบ', color:'#dbeafe', border:'#3b82f6',
+      items:[
+        'เบิกจ่ายตามรอบปกติที่กำหนดในตาราง เช่น รายเดือน รายปี หรือตามจำนวนที่กำหนด',
+        'กรณีอุปกรณ์ที่กำหนดรายเดือน หากไม่ได้ใช้งาน สามารถนำมาใช้ในเดือนถัดไปได้',
+        'อุปกรณ์ใช้ครั้งเดียว (Disposable) เปลี่ยนทดแทนเมื่อหมด',
+      ]
+    },
+    { icon:'⚠️', title:'เงื่อนไขการเปลี่ยนทดแทน', color:'#fef3c7', border:'#f59e0b',
+      items:[
+        'เปลี่ยนทดแทนตามรอบปกติที่กำหนด',
+        'เปลี่ยนเมื่ออุปกรณ์ชำรุด เสียหาย ฉีกขาด ไม่สามารถป้องกันอันตรายได้',
+        'เปลี่ยนเมื่อมีสภาพสกปรกจนไม่สามารถซักล้างได้ หรือมีผลต่อภาพลักษณ์ความสะอาด',
+      ]
+    },
+    { icon:'🚿', title:'การดูแลรักษาอุปกรณ์', color:'#d1fae5', border:'#10b981',
+      items:[
+        'เสื้อห้องเย็นและผ้ากันเปื้อน: กำหนดสาขาทำการซักอย่างน้อย 1 ครั้ง/สัปดาห์',
+        'ห้ามพนักงานนำเสื้อห้องเย็นออกนอกสาขาไปซักเองที่บ้าน',
+        'ถุงมือกันบาด Super HI-CUT: ซักได้สูงสุด 30 ครั้ง/เดือน',
+        'ถุงมือกันความร้อน: ต้องมีถุงมือสำรองระหว่างการซัก',
+      ]
+    },
+    { icon:'↩️', title:'การเก็บคืนอุปกรณ์', color:'#ede9fe', border:'#8b5cf6',
+      items:[
+        'Staff Outsource: ต้องคืนรองเท้านิรภัยเมื่อพนักงานลาออกหรือสิ้นสุดการทำงาน',
+        'รองเท้านิรภัยสีขาว: ไม่อนุญาตให้ใส่ออกนอกพื้นที่ปฏิบัติงาน',
+        'เสื้อสะท้อนแสง Spotters: จัดเก็บไว้คู่กับรถ Forklift',
+        'หน้ากากงานเชื่อม: จัดเก็บไว้บริเวณพื้นที่ปฏิบัติงานเชื่อม',
+      ]
+    },
+    { icon:'🔐', title:'ช่องทางการสั่งซื้อ', color:'#fce7f3', border:'#ec4899',
+      items:[
+        'ช่องทาง HO S.H.E.: สั่งผ่านส่วนกลาง Safety, Health & Environment',
+        'ช่องทาง Store iProcurement: สาขาสั่งซื้อโดยตรงผ่านระบบ iProcurement',
+        'สามารถดูรายละเอียดช่องทางการสั่งซื้อแต่ละรายการในตาราง GMP & PPE ทั้งหมด',
+      ]
+    },
+  ];
+  document.getElementById('guideContent').innerHTML = guidelines.map(g => `
+    <div style="background:${g.color};border-left:4px solid ${g.border};border-radius:12px;padding:18px 20px;margin-bottom:14px;">
+      <h3 style="font-size:15px;font-weight:700;color:var(--primary);margin-bottom:10px;">${g.icon} ${g.title}</h3>
+      <ul style="padding-left:18px;color:var(--text);font-size:14px;line-height:1.8;">
+        ${g.items.map(i=>`<li>${i}</li>`).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+// ─── PER-CELL IMAGE STORAGE ──────────────────────────
+// แนวทาง: อัปโหลดรูปขึ้น ImgBB (ฟรี, ไม่จำกัดขนาด) → ได้ URL
+//         เก็บ mapping slotKey→URL ใน JSONBin → sync ทุกเครื่อง
+// ข้อดี: JSONBin เก็บแค่ URL สั้นๆ (<5KB) ไม่มีปัญหา limit เลย
+
+function buildAllTables() {
+  buildTable1();
+  buildTable2();
+  buildTable3();
+  buildGuide();
+  loadGallery();
+}
+
+// ── Legacy stubs (safety) ──
+function openSyncSetup() {}
+function closeSetupModal() {}
+
+</script>
+</body>
+</html>
